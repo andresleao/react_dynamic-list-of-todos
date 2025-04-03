@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import 'bulma/css/bulma.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import * as api from './api';
@@ -13,7 +13,7 @@ export const App: React.FC = () => {
   const { filteredTodos, setFilteredTodos, setTodos } = useContext(TodoContext);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGetTodoList = () => {
+  const handleGetTodoList = useCallback(() => {
     setIsLoading(true);
     api
       .getTodos()
@@ -22,11 +22,11 @@ export const App: React.FC = () => {
         setFilteredTodos(todos);
       })
       .finally(() => setIsLoading(false));
-  };
+  }, [setTodos, setFilteredTodos]);
 
   useEffect(() => {
     handleGetTodoList();
-  }, []);
+  }, [handleGetTodoList]);
 
   return (
     <>
