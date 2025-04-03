@@ -7,38 +7,22 @@ import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoModal } from './components/TodoModal';
 import { Loader } from './components/Loader';
-import { Todo } from './types/Todo';
 import { TodoContext } from './components/TodoContext/TodoContext';
 
 export const App: React.FC = () => {
+  const { filteredTodos, setFilteredTodos, setTodos } = useContext(TodoContext);
   const [isLoading, setIsLoading] = useState(false);
-  const { filterType } = useContext(TodoContext);
-  const [todos, setTodos] = useState<Todo[] | null>();
 
   const handleGetTodoList = () => {
     setIsLoading(true);
     api
       .getTodos()
-      .then(setTodos)
+      .then(todos => {
+        setTodos(todos);
+        setFilteredTodos(todos);
+      })
       .finally(() => setIsLoading(false));
   };
-
-  const getFilteredTodos = () => {
-    if (!todos) {
-      return [];
-    }
-
-    switch (filterType) {
-      case 'active':
-        return todos.filter(todo => !todo.completed);
-      case 'completed':
-        return todos.filter(todo => todo.completed);
-      default:
-        return todos;
-    }
-  };
-
-  const filteredTodos = getFilteredTodos();
 
   useEffect(() => {
     handleGetTodoList();
@@ -57,7 +41,9 @@ export const App: React.FC = () => {
 
             <div className="block">
               {isLoading && <Loader />}
-              {!isLoading && !!todos && <TodoList todos={filteredTodos} />}
+              {!isLoading && !!filteredTodos && (
+                <TodoList todos={filteredTodos} />
+              )}
             </div>
           </div>
         </div>
